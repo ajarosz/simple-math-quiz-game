@@ -122,6 +122,12 @@
             margin-top: 10px;
             color: #4CAF50;
         }
+        #strikes {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #ff4444;
+        }
     </style>
 </head>
 <body>
@@ -138,6 +144,7 @@
             <div id="options"></div>
             <p id="result"></p>
             <p>Wynik: <span id="score">0</span></p>
+            <p id="strikes">Pozostałe błędne próby: <span id="strikes-value">2</span></p>
             <p id="highscore">Najlepszy wynik: <span id="highscore-value">0</span></p>
         </div>
         <div id="end-screen" style="display: none;">
@@ -162,7 +169,9 @@
         const highscoreElement = document.getElementById('highscore-value');
         const finalHighscoreElement = document.getElementById('final-highscore');
         const startHighscoreElement = document.getElementById('start-highscore-value');
-
+        const strikesElement = document.getElementById('strikes-value');
+        
+        let strikes = 2;
         let currentAnswer;
         let score = 0;
         let timeLeft = 60;
@@ -196,6 +205,8 @@
             gameScreen.style.display = 'block';
             score = 0;
             timeLeft = 60;
+            strikes = 2;
+            updateStrikes();
             updateScore();
             startTimer();
             generateProblem();
@@ -289,13 +300,23 @@
                 }, 1000);
             } else {
                 incorrectSound.play();
+                strikes--;
+                updateStrikes();
                 button.classList.add('incorrect');
                 button.disabled = true;
+                
+                if (strikes === 0) {
+                    endGame();
+                }
             }
         }
 
         function updateScore() {
             scoreElement.textContent = score;
+        }
+
+        function updateStrikes() {
+            strikesElement.textContent = strikes;
         }
 
         startBtn.addEventListener('click', startGame);
