@@ -108,6 +108,20 @@
         #instructions {
             margin-bottom: 20px;
         }
+
+        #highscore {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #4CAF50;
+        }
+
+        #highscore, #start-highscore {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #4CAF50;
+        }
     </style>
 </head>
 <body>
@@ -115,6 +129,7 @@
         <h1>Gra Matematyczna</h1>
         <div id="start-screen">
             <p id="instructions">Masz 60 sekund, aby odpowiedzieć na jak najwięcej zadań matematycznych. Powodzenia!</p>
+            <p id="start-highscore">Najlepszy wynik: <span id="start-highscore-value">0</span></p>
             <button id="start-btn" class="game-btn">Start</button>
         </div>
         <div id="game-screen" style="display: none;">
@@ -123,10 +138,12 @@
             <div id="options"></div>
             <p id="result"></p>
             <p>Wynik: <span id="score">0</span></p>
+            <p id="highscore">Najlepszy wynik: <span id="highscore-value">0</span></p>
         </div>
         <div id="end-screen" style="display: none;">
             <h2>Koniec gry!</h2>
             <p>Twój końcowy wynik: <span id="final-score"></span></p>
+            <p>Najlepszy wynik: <span id="final-highscore"></span></p>
             <button id="restart-btn" class="game-btn">Zagraj ponownie</button>
         </div>
     </div>
@@ -142,15 +159,42 @@
         const scoreElement = document.getElementById('score');
         const timeElement = document.getElementById('time');
         const finalScoreElement = document.getElementById('final-score');
+        const highscoreElement = document.getElementById('highscore-value');
+        const finalHighscoreElement = document.getElementById('final-highscore');
+        const startHighscoreElement = document.getElementById('start-highscore-value');
 
         let currentAnswer;
         let score = 0;
         let timeLeft = 60;
         let timer;
+        let highscore = 0;
 
         // Sound effects
         const correctSound = new Audio('sounds/correct-answer.mp3');
         const incorrectSound = new Audio('sounds/incorrect-answer.mp3');
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = `expires=${date.toUTCString()}`;
+            document.cookie = `${name}=${value};${expires};path=/`;
+        }
+
+        function updateHighscore() {
+            if (score > highscore) {
+                highscore = score;
+                setCookie('mathGameHighscore', highscore, 365);
+            }
+            startHighscoreElement.textContent = highscore;
+            highscoreElement.textContent = highscore;
+            finalHighscoreElement.textContent = highscore;
+        }
 
         function startGame() {
             startScreen.style.display = 'none';
@@ -160,6 +204,8 @@
             updateScore();
             startTimer();
             generateProblem();
+            highscore = parseInt(getCookie('mathGameHighscore')) || 0;
+            updateHighscore();
         }
 
         function endGame() {
@@ -167,6 +213,7 @@
             gameScreen.style.display = 'none';
             endScreen.style.display = 'block';
             finalScoreElement.textContent = score;
+            updateHighscore();
         }
 
         function startTimer() {
@@ -227,6 +274,7 @@
                 correctSound.play();
                 score++;
                 updateScore();
+                updateHighscore();
                 resultElement.textContent = 'Poprawnie!';
                 
                 button.classList.add('correct');
@@ -260,6 +308,10 @@
             endScreen.style.display = 'none';
             startGame();
         });
+
+        // Initialize highscore on page load
+        highscore = parseInt(getCookie('mathGameHighscore')) || 0;
+        updateHighscore();
     </script>
 </body>
 </html>
