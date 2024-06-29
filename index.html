@@ -173,23 +173,18 @@
         const correctSound = new Audio('sounds/correct-answer.mp3');
         const incorrectSound = new Audio('sounds/incorrect-answer.mp3');
 
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
+        function getHighscore() {
+            return parseInt(localStorage.getItem('mathGameHighscore')) || 0;
         }
 
-        function setCookie(name, value, days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            const expires = `expires=${date.toUTCString()}`;
-            document.cookie = `${name}=${value};${expires};path=/`;
+        function setHighscore(value) {
+            localStorage.setItem('mathGameHighscore', value);
         }
 
         function updateHighscore() {
             if (score > highscore) {
                 highscore = score;
-                setCookie('mathGameHighscore', highscore, 365);
+                setHighscore(highscore);
             }
             startHighscoreElement.textContent = highscore;
             highscoreElement.textContent = highscore;
@@ -204,7 +199,7 @@
             updateScore();
             startTimer();
             generateProblem();
-            highscore = parseInt(getCookie('mathGameHighscore')) || 0;
+            highscore = getHighscore();
             updateHighscore();
         }
 
@@ -310,7 +305,7 @@
         });
 
         // Initialize highscore on page load
-        highscore = parseInt(getCookie('mathGameHighscore')) || 0;
+        highscore = getHighscore();
         updateHighscore();
     </script>
 </body>
